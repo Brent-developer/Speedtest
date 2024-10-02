@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed Test Results</title>
+    <style>
+        body {
+            background-image: url('F:\api code\api test code\images');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            margin: 0;
+            color: white; /* Ensures text is visible on dark background */
+        }
+        h2 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            font-size: 20px;
+            text-align: left;
+            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background for table */
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #037fb8;
+        }
+        th {
+            background-color: #003b49;
+        }
+        tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.1); /* Makes alternate rows semi-transparent */
+        }
+    </style>
+</head>
+<body>
+    <h2>Speed Test Results</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Download (Mbps)</th>
+                <th>Upload (Mbps)</th>
+                <th>Ping (ms)</th>
+                <th>Server Name</th>
+                <th>Server Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+            <tr>
+                <td>{{ result.timestamp }}</td>
+                <td>{{ result.download }}</td>
+                <td>{{ result.upload }}</td>
+                <td>{{ result.ping }}</td>
+                <td>{{ result.server_name }}</td>
+                <td>{{ result.server_location }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
