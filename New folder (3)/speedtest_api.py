@@ -1,14 +1,31 @@
-import speedtest
+import sys
+import subprocess
 import sqlite3
 from datetime import datetime
 import threading
 import time
-from flask import Flask, jsonify, render_template
+
+# Function to install packages if they are missing
+def install(package):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+# Ensure necessary packages are installed
+try:
+    import speedtest
+except ImportError:
+    install('speedtest-cli')
+    import speedtest
+
+try:
+    from flask import Flask, jsonify, render_template
+except ImportError:
+    install('flask')
+    from flask import Flask, jsonify, render_template
 
 # Initialize Flask application
 app = Flask(__name__)
 
-# Database file
+# Database file (relative path or ensure absolute path)
 DB_FILE = 'speedtest_results.db'
 
 # Function to perform the speed test and update the SQLite database
@@ -57,13 +74,18 @@ def run_speedtest():
             "server_location": server_location
         }
     except Exception as e:
+        # Log the exception for debugging
+        print(f"Error running speed test: {e}")
         return {"error": str(e)}
 
 # Background service to run speed tests periodically
 def background_speedtest_service():
     while True:
+        start_time = time.time()
         run_speedtest()
-        time.sleep(60) 
+        time_elapsed = time.time() - start_time
+        sleep_time = max(0, 60 - time_elapsed)  # Ensure 60 seconds between test runs
+        time.sleep(sleep_time)
 
 # Flask route to fetch the latest speed test result
 @app.route('/speedtest/latest', methods=['GET'])
@@ -89,7 +111,7 @@ def get_latest_speedtest():
         else:
             return jsonify({"error": "No results found"}), 404
 
-# Flask route
+# Flask route to get all speed test results
 @app.route('/speedtest/all', methods=['GET'])
 def get_all_speedtests():
     with sqlite3.connect(DB_FILE) as conn:
@@ -149,6 +171,6 @@ def start_background_service():
 if __name__ == "__main__":
     # Start the background speed test service
     start_background_service()
-    
+
     # Run the Flask app
     app.run(host='127.0.0.1', port=5000)
